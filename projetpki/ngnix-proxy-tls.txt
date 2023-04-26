@@ -1,0 +1,75 @@
+root@pki:/home/vboxuser# cat /etc/nginx/proxy-tls 
+
+stream {
+
+
+
+    log_format tcp '$remote_addr [$time_local] '
+
+                '$protocol $status $bytes_sent '
+
+                '$upstream_addr $upstream_bytes_received '
+
+                '$upstream_bytes_sent $upstream_connect_time';
+
+
+
+    access_log /var/log/nginx/relay_access.log tcp;
+
+    error_log /var/log/nginx/relay_error.log;
+
+
+
+    upstream node1 {
+
+        server node1.mydomain.local:60000;
+
+    }
+
+
+
+    upstream node2 {
+
+    server node2.mydomain.local:60000;
+
+    }
+
+    upstream node3 {
+
+    server node3.mydomain.local:60000;
+
+    }
+
+
+
+
+
+    server {
+
+        listen 60001;
+
+        proxy_pass node1;
+
+    }
+
+
+
+    server {
+
+        listen 60002;
+
+        proxy_pass node2;
+
+    }
+
+
+    server {
+
+        listen 60003;
+
+        proxy_pass node3;
+
+    }
+
+
+}
