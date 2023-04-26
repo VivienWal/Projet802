@@ -1,0 +1,161 @@
+root@node2:~/projet# cat server_com3.py 
+
+import socket
+
+import ssl
+
+import socket
+
+from Crypto.Cipher import AES
+
+from time import sleep
+
+from Crypto.Util import Padding
+
+
+
+HOST = socket.getfqdn()
+
+PORT = 60000
+
+#PORT2 = 61234
+
+
+
+# set up TLS context
+
+#context = ssl.create_default_context()
+
+context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+
+#context.set_ciphers('ECDHE-RSA-AES128-SHA256')
+
+context.verify_mode = ssl.CERT_REQUIRED
+
+context.load_verify_locations('/home/superv/projet/rootCA.pem')
+
+context.load_cert_chain(keyfile="private.pem", certfile="node.pem")
+
+
+
+
+
+if __name__ == "__main__":
+
+    iv = b'1234567890123456'
+
+
+
+    def encrypt(message):
+
+        cipher = AES.new(key, AES.MODE_CBC, iv)
+
+        padded_message = Padding.pad(message, AES.block_size)
+
+        ciphertext = cipher.encrypt(padded_message)
+
+        return ciphertext
+
+
+
+    def decrypt(ciphertext):
+
+        cipher = AES.new(key, AES.MODE_CBC, iv)
+
+        padded_message = cipher.decrypt(ciphertext)
+
+        message = Padding.unpad(padded_message, AES.block_size)
+
+        return message.rstrip(b"\0")
+
+
+
+    print('echange clé')
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as c:
+
+        c.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+        c.bind((HOST, PORT))
+
+        c.listen(5)
+
+        with context.wrap_socket(c, server_side=True) as ssl_socket:
+
+            conn, addr = ssl_socket.accept()
+
+            with conn:
+
+                data = conn.recv(1024)
+
+                key = data
+
+                print(key)
+
+                print(type(key))
+
+            #c.close()
+
+            sleep(1)
+
+            ssl_socket.close()
+
+        c.close()
+
+    print('echange message')
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+        s.bind((HOST, PORT))
+
+        s.listen(5)
+
+        conn, addr = s.accept()
+
+        with conn:
+
+            print('Connected by', addr)
+
+            print('key ', key)
+
+            while True:
+
+                try:
+
+                # Receive encrypted message from client
+
+                    data = conn.recv(1024)
+
+                    if not data:
+
+                        break
+
+
+
+                # Decrypt the message
+
+                    plaintext = decrypt(data)
+
+
+
+                # Print the decrypted message
+
+                    print('Received:', plaintext.decode('utf-8'))
+
+
+
+                # Echo the message back to the client (encrypted)
+
+                    ciphertext = encrypt(plaintext)
+
+                    conn.sendall(ciphertext)
+
+                except ConnectionResetError:
+
+                    print("Client closed the connection")
+
+                    break
+
+        s.close()
