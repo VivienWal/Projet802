@@ -1,6 +1,4 @@
-generate_keys.py
-
-
+superv@node1:~/projet$ cat generate_keys.py
 from OpenSSL import crypto
 
 import os
