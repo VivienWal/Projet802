@@ -1,5 +1,4 @@
-root@node1:~/projet/communication# cat client_com2.py 
-
+superv@node1:~/projet$ cat client_com.py
 import socket
 
 import ssl
