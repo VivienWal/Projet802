@@ -1,5 +1,4 @@
-root@pki:~/projet/api# cat sign_cert_server.py
-
+superv@pki:~/projet$ cat sign_cert_server.py
 from cryptography import x509
 
 from cryptography.hazmat.primitives import serialization, hashes
@@ -70,7 +69,7 @@ while True:
 
     with open("node.csr", "w") as f:
 
-        f.write(csr_pem) 
+        f.write(csr_pem)
 
 # Load the root certificate
 
