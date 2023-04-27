@@ -1,5 +1,4 @@
-root@node2:~/projet# cat server_com3.py 
-
+superv@node1:~/projet$ cat server_com.py
 import socket
 
 import ssl
