@@ -1,5 +1,4 @@
-root@pki:/home/vboxuser# cat /etc/nginx/proxy-tls 
-
+superv@pki:~/projet$ cat /etc/nginx/proxy-tls
 stream {
 
 
@@ -34,12 +33,12 @@ stream {
 
     }
 
+
     upstream node3 {
 
     server node3.mydomain.local:60000;
 
     }
-
 
 
 
@@ -62,7 +61,6 @@ stream {
 
     }
 
-
     server {
 
         listen 60003;
@@ -70,6 +68,7 @@ stream {
         proxy_pass node3;
 
     }
+
 
 
 }
