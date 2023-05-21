@@ -1,0 +1,89 @@
+Sur le PKI :
+Générer une paire de clés RSA, créer un certificat auto-signé et générer un certificat racine.
+
+openssl genrsa -out priv-pki.pem 4096 
+
+openssl rsa -in priv-pki.pem -pubout -out pub-pki.pem
+
+openssl req -new -x509 -key priv-pki.pem -out rootCA.pem -days 360
+
+
+
+
+Penser a avoir les droits sur le dossier du projet :
+chown -R superv:superv /home/superv/projet
+
+Transfert du fichier rootCA du pki vers les noeuds :
+scp rootCA.pem superv@192.168.1.69:/home/superv/projet/rootCA.pem
+
+
+Install de nginx: 
+
+apt install nginx
+
+Copie du fichier nginx proxy tls
+
+ensuite dans /etc/nginx/nginx.conf ajouter :
+
+	include /etc/nginx/proxy-tls;
+
+
+/etc/hosts hyper important ! Ajouter les noms et les IP sur toute les machines
+
+127.0.0.1       localhost
+127.0.1.1       node1
+192.168.1.185   pki.mydomain.local
+192.168.1.69    node1.mydomain.local
+192.168.1.39    node2.mydomain.local
+192.168.1.48    node3.mydomain.local
+
+
+
+Ensuite :
+
+systemctl status nginx.service
+systemctl stop nginx.service
+systemctl start nginx.service
+systemctl restart nginx.service
+
+
+Installer les paquets manquants :
+
+pip3 install crypto
+pip3 install pycrypto
+pip3 install pycryptodome
+
+
+Lancer sur le PKI :
+
+python3 sign_cert
+
+**root.crt c'est rootCA.pem**
+**root.key c'est priv-key.pem**
+
+
+sur les client : apt-get install python3-openssl
+
+Sur les noeuds lancer :
+
+python3 generate
+python3 request
+
+Création du fichier node.pem
+
+ss -lt
+hostname -F /etc/hostname
+
+Bien mettre le nom du noeud avec .mydomain.local
+
+pour finir lancer python3 server_com sur un noeud
+
+et python3 client_com sur un autre noeud
+
+
+
+Sur le pki : 
+
+tcpdump -i any port 60000 or port 60002
+
+wireshark tls au moment des echanges
